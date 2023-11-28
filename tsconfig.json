@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "moduleResolution": "Bundler",
+        "target": "ES2022",
+        "module": "ES2022",
+        "outDir": "js",
+        "strict": false,
+        // "noImplicitAny": true,
+        // "noImplicitReturns": true,
+        // "noImplicitThis": true,
+        "esModuleInterop": true,
+        "paths": {
+        },
+        "skipLibCheck": true,
+        "allowSyntheticDefaultImports": true,
+        "types": [
+            "@types/audioworklet"
+        ]
+    }
+
+}

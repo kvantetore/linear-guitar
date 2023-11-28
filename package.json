@@ -1,0 +1,14 @@
+{
+  "scripts": {
+    "watch": "esbuild ./src/main.ts ./src/audio-generator.ts --bundle --sourcemap --outdir=js/ --watch --format=esm"
+  },
+  "dependencies": {
+    "@observablehq/plot": "^0.6.11",
+    "apexcharts": "^3.44.0",
+    "mathjax-full": "^3.2.2"
+  },
+  "devDependencies": {
+    "@types/audioworklet": "^0.0.50",
+    "esbuild": "0.19.5"
+  }
+}
