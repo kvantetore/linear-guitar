@@ -1,5 +1,4 @@
 import { pluck } from "./functions";
-import { addLinePlot } from "./plotting";
 import { createDampedWaveOperator, createInitialState, diff2 } from "./propagation";
 
 
@@ -18,10 +17,7 @@ export class String {
     public stepIndex: number;
     public force: Float32Array;
 
-    public plot;
-    public fretMarker;
-
-    public frets = [
+    public static frets = [
       1 - 0.000,
       1 - 0.056,
       1 - 0.109,
@@ -65,14 +61,14 @@ export class String {
         let c = this.frequency * this.frequency * 2;
         let force = diff2(this.grid, this.state.y, this.force);
 
-        let dampingCoefficient = this.pullPosition != null ? 100 : 4;
+        let dampingCoefficient = this.dampingCoefficient; // this.pullPosition != null ? 100 : 4;
         // let dampingCoefficient = 4;
 
         for (let i = 0; i < this.grid.x.length; i++) {
             force[i] = c * force[i] - dampingCoefficient * this.state.ydiff[i];
         }
 
-        if (this.pullPosition != null) {
+        if (this.pullPosition != null && this.pullPosition != fretPosition) {
             let pullIndex = this.grid.getIndex(this.pullPosition);
             let pullForce = this.pullForce * c * fretPosition / (this.pullPosition * (fretPosition - this.pullPosition) * this.grid.dx);
 
@@ -93,50 +89,16 @@ export class String {
     }
 
     public strum(position: number) {
-        this.state.y = pluck(this.grid, position, this.fretPosition);
+        this.pullPosition = position;
+        this.pullForce = 1;
+        setTimeout(() => {
+            this.pullPosition = null;
+        }, 10);
     }
 
     public pullString(x, y) {
-
-    }
-
-    public addPlot() {
-        this.plot = addLinePlot(this.grid.x, this.state.y, { height: 25 });
-        this.fretMarker = this.plot.addMarker(this.fretPosition ?? 1, 0, "red");
-
-        for (let fret of this.frets) {
-            this.plot.addVertical(fret, "gray");
-        }
-
-        function down(event) {
-            if (event.buttons == 1) {
-                let x = event.offsetX / this.plot.svg.clientWidth;
-                let y = 1 - 2 * event.offsetY / this.plot.svg.clientHeight;
-
-                if (event.ctrlKey) {
-                    this.fretPosition = x;
-                }
-                else {
-                    this.pullPosition = x;
-                    this.pullForce = y;
-                }
-            }
-        }
-
-        function up(event) {
-            this.pullPosition = null;
-            this.pullForce = 0;
-        }
-
-        this.plot.svg.addEventListener("mousedown", down.bind(this));
-        this.plot.svg.addEventListener("mousemove", down.bind(this));
-        this.plot.svg.addEventListener("mouseup", up.bind(this));
-        this.plot.svg.addEventListener("mouseleave", up.bind(this));
-    }
-
-    public updatePlot() {
-        this.plot.update(this.grid.x, this.state.y);
-        this.fretMarker.update(this.fretPosition ?? 1, 0, "red");
+        this.pullPosition = x;
+        this.pullForce = y;
     }
 
 }

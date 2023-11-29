@@ -3,9 +3,9 @@ class AudioGenerator extends AudioWorkletProcessor {
     private _minAvailable: number;
     private _requestSamples: number;
 
-    constructor() {
+    constructor(args: AudioWorkletProcessorConstructor, arg2: any) {
         super()
-
+        
         this._buffer = new RingBuffer(128 * 100);
         this._minAvailable = 128 * 20;
         this._requestSamples = 128 * 3;
