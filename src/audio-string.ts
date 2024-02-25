@@ -8,28 +8,36 @@ class AudioString extends AudioWorkletProcessor {
 
     strumStart: number;
     strumEnd: number;
+    subSteps: number = 2;
 
     static get parameterDescriptors() {
         return [
             {
                 name: "fretPosition",
                 defaultValue: 1,
-                minValue: 0.5,
+                minValue: 0.1,
                 maxValue: 1,
                 automationRate: "a-rate",
             },
             {
                 name: "pullPosition",
-                defaultValue: 1,
+                defaultValue: 0.25,
                 minValue: 0,
                 maxValue: 1,
                 automationRate: "a-rate",
             },
             {
                 name: "pullForce",
-                defaultValue: 1,
+                defaultValue: 0,
                 minValue: -10,
                 maxValue: 10,
+                automationRate: "a-rate",
+            },
+            {
+                name: "pickupPosition",
+                defaultValue: 0.23,
+                minValue: 0,
+                maxValue: 1,
                 automationRate: "a-rate",
             },
             {
@@ -38,6 +46,13 @@ class AudioString extends AudioWorkletProcessor {
                 minValue: 0,
                 maxValue: 1000,
                 automationRate: "a-rate",
+            },
+            { 
+                name: "frequency",
+                defaultValue: 82,
+                minValue: 10,
+                maxValue: 1200,
+                automationRate: "a-rate"
             }
         ]
     }
@@ -49,10 +64,8 @@ class AudioString extends AudioWorkletProcessor {
         var dt = 1/sampleRate;
         var frequency = args?.processorOptions?.frequency ?? 82;
 
-        this.pickupPosition = args?.processorOptions?.pickupPosition ?? 0.23;
-
         this.grid = createRegularGrid(0, 1, dx);
-        this.string = new String(this.grid, dt, frequency);
+        this.string = new String(this.grid, dt / this.subSteps, frequency);
 
         this.port.onmessage = this.onmessage.bind(this);
     }
@@ -61,16 +74,20 @@ class AudioString extends AudioWorkletProcessor {
         const output = outputs[0];
 
         // propagate string and sample into output buffer
-        let pickupIndex = this.grid.getIndex(this.pickupPosition);
         let buffer = new Float32Array(output[0].length);
         for (let i = 0; i < buffer.length; i++) {
+            this.string.frequency = this.getParam(parameters.frequency, i);
             this.string.pullPosition = this.getParam(parameters.pullPosition, i);
             this.string.pullForce = this.getParam(parameters.pullForce, i);
             this.string.dampingCoefficient = this.getParam(parameters.dampingCoefficient, i);
             this.string.fretPosition = this.getParam(parameters.fretPosition, i);
 
-            this.string.step();
+            for (let subStep = 0; subStep<this.subSteps; subStep++)
+            {
+                this.string.step();
+            }
 
+            let pickupIndex = this.grid.getIndex(this.getParam(parameters.pickupPosition, i));
             buffer[i] = this.string.state.y[pickupIndex] / 6;
         }
 

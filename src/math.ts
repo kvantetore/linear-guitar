@@ -9,25 +9,89 @@ const adaptor = browserAdaptor()
 RegisterHTMLHandler(adaptor)
 
 const mathjax_document = mathjax.document('', {
-  InputJax: new TeX({ packages: AllPackages }),
-  OutputJax: new SVG({ fontCache: 'local' })
+    InputJax: new TeX({ packages: AllPackages }),
+    OutputJax: new SVG({ fontCache: 'local' })
 })
 
 
 const mathjax_options = {
-  em: 16,
-  ex: 8,
-  containerWidth: 1280
+    em: 16,
+    ex: 8,
+    containerWidth: 1280
 }
 
-export function addMath(math: string)
+export function addMath(math: string, after: string = null): { update: (string) => void}
 {
-    const node = mathjax_document.convert(math, mathjax_options)
-
     var container = document.createElement("div");
+    container.style.fontSize = "2em";
+    container.style.margin = "2em";
+    container.style.display = "flex";
+    container.style.alignItems = "center"
     document.body.append(container);
 
-    adaptor.append(container, node);
+    var equation = document.createElement("div");
+    equation.style.flexGrow = "1";
+    equation.style.textAlign = "center";
+    container.append(equation);
+
+    function update(math: string) {
+        let node = mathjax_document.convert(math, mathjax_options);
+        equation.innerHTML = "";
+        adaptor.append(equation, node);
+    }
+
+    update(math);
+
+    if (after) {
+        let afterDiv = document.createElement("div");
+        afterDiv.innerText = after;
+        container.append(afterDiv)
+    }
+
+    return {
+        update: update,
+    };
+}
+
+export function addMathSteps(mathSteps: string[], after: string = null) {
+
+    var container = document.createElement("div");
+    container.style.fontSize = "2em";
+    container.style.margin = "2em";
+    container.style.display = "flex";
+    container.style.alignItems = "center"
+    document.body.append(container);
+
+    var equation = document.createElement("div");
+    equation.style.flexGrow = "1";
+    equation.style.textAlign = "center";
+    container.append(equation);
+
+    let current = 0;
+    update();
+    
+    function update() {
+        let math = mathSteps[current];
+
+        const node = mathjax_document.convert(math, mathjax_options)
+        equation.innerHTML = "";
+        adaptor.append(equation, node);
+    }
+
+    container.addEventListener("click", () => {
+        if (current < mathSteps.length - 1) {
+            current++;
+            update();
+        }
+    })
+
+
+    if (after) {
+        let afterDiv = document.createElement("div");
+        afterDiv.innerText = after;
+        container.append(afterDiv)
+    }
 
     return container;
+
 }

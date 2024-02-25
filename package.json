@@ -1,10 +1,11 @@
 {
   "scripts": {
-    "watch": "esbuild ./src/main.ts ./src/audio-generator.ts ./src/audio-string.ts --bundle --sourcemap --outdir=js/ --watch --format=esm"
+    "watch": "esbuild ./src/main.ts ./src/audio-generator.ts ./src/audio-string.ts ./src/physics.ts ./src/analytical-solution.ts  --bundle --sourcemap --outdir=js/ --watch --format=esm"
   },
   "dependencies": {
     "@observablehq/plot": "^0.6.11",
     "apexcharts": "^3.44.0",
+    "d3": "^7.8.5",
     "mathjax-full": "^3.2.2"
   },
   "devDependencies": {

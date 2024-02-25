@@ -14,7 +14,8 @@
         "skipLibCheck": true,
         "allowSyntheticDefaultImports": true,
         "types": [
-            "@types/audioworklet"
+            "@types/audioworklet",
+            "@types/d3"
         ]
     }
 

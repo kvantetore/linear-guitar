@@ -17,6 +17,7 @@ export class String {
     public stepIndex: number;
     public force: Float32Array;
 
+    // https://www.stewmac.com/fret-calculator/
     public static frets = [
       1 - 0.000,
       1 - 0.056,
@@ -31,6 +32,13 @@ export class String {
       1 - 0.439,
       1 - 0.470,
       1 - 0.500, // one octave
+      1 - 0.528,
+      1 - 0.555,
+      1 - 0.580,
+      1 - 0.603,
+      1 - 0.625,
+      1 - 0.646,
+      1 - 0.666
     ]
 
     constructor(grid: IGrid, dt: number, frequency: number) {
@@ -58,7 +66,7 @@ export class String {
             this.state.ydiff[fretGridIndex] = 0;
         }
 
-        let c = this.frequency * this.frequency * 2;
+        let c = this.frequency * this.frequency * 4;
         let force = diff2(this.grid, this.state.y, this.force);
 
         let dampingCoefficient = this.dampingCoefficient; // this.pullPosition != null ? 100 : 4;
