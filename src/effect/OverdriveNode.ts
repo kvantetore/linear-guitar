@@ -2,9 +2,11 @@ import { CompositeAudioNodeWrapper } from "./AudioNodeWrapper";
 
 export class OverdriveNode extends CompositeAudioNodeWrapper
 {
+  bandPassFilter: BiquadFilterNode;
+  wet: GainNode;
+  dry: GainNode;
   waveShaper: WaveShaperNode;
-  gainUp: GainNode;
-  gainDown: GainNode;
+
   lowpassFilter: BiquadFilterNode;
 
   _distortion: number;
@@ -12,28 +14,27 @@ export class OverdriveNode extends CompositeAudioNodeWrapper
   constructor(audioCtx: AudioContext) {
     super(audioCtx);
 
+    this.bandPassFilter = audioCtx.createBiquadFilter();
+    this.wet = audioCtx.createGain();
+    this.dry = audioCtx.createGain();
     this.waveShaper = audioCtx.createWaveShaper();
-    this.gainUp = audioCtx.createGain();
-    this.gainDown = audioCtx.createGain();
-    this.lowpassFilter = audioCtx.createBiquadFilter();
+    this.lowpassFilter = audioCtx.createBiquadFilter();  
 
-    this.node = this.waveShaper;
+    this.node = audioCtx.createGain();
     this.outputNode = this.lowpassFilter;
 
-    this.waveShaper
-      .connect(this.gainUp)
-      .connect(this.gainDown)
-      .connect(this.lowpassFilter);
+    this.node.connect(this.bandPassFilter);
+    this.bandPassFilter.connect(this.wet);
+    this.bandPassFilter.connect(this.dry);
+    this.wet.connect(this.waveShaper);
+    this.dry.connect(this.lowpassFilter);
+    this.waveShaper.connect(this.lowpassFilter);
 
-    this.waveShaper.oversample = '4x';
+    this.bandPassFilter.frequency.value = 800;
+    this.lowpassFilter.frequency.value = 3000;
+
     this.distortion = 100;
-
-    this.lowpassFilter.type = 'lowpass';
-    this.frequency = 2000;
-
-    let gain = 1;
-    this.gainUp.gain.value = gain;
-    this.gainDown.gain.value = 1/gain;
+    this.wetMix = 1.0;
   }
 
   get distortion() { return this._distortion; }
@@ -42,17 +43,18 @@ export class OverdriveNode extends CompositeAudioNodeWrapper
     this._distortion = v;
   }
 
-  public get gain() { return this.gainUp.gain.value; }
-  public set gain(v) { 
-    this.gainUp.gain.value = v;
-    this.gainDown.gain.value = 1/v;
+  get wetMix() { return this.wet.gain.value; }
+  set wetMix(v) { 
+    this.wet.gain.value = v;
+    this.dry.gain.value = 1 - v;
   }
-  
+
   public get frequency() { return this.lowpassFilter.frequency.value; }
   public set frequency(v) { this.lowpassFilter.frequency.value = v; }
+
  
   private calculateDistortionCurve(distortion: number) : Float32Array {
-    const amount: number = 44100;
+    const amount: number = 22050;
     const deg:number  = Math.PI / 180;
     const curve:Float32Array = new Float32Array(amount);
 

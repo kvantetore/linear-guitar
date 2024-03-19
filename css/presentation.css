@@ -1,0 +1,46 @@
+body {
+    grid-template-columns: 1fr 90% 1fr;
+    margin-bottom: 50vh;
+    overflow: scroll;
+}
+
+h1 {
+    text-align: center;
+}
+
+.math {
+    display: flex;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+}
+
+.math .equation {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.math .after {
+
+}
+
+.math-text {
+    text-align: center;
+    font-size: 2rem;
+}
+
+.line-plot {
+    margin-bottom: 2rem;
+}
+
+.popup {
+    position: absolute;
+    top: 100px;
+    width: 40%;
+    padding: 1em;
+    margin-left: 30%;
+    margin-right: 30%;
+    border: 5px solid var(--accent);
+    font-size: 2rem;
+    background: var(--bg);
+    text-align: center;
+}

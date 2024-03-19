@@ -1,9 +1,8 @@
-import { createInitialState, createLeapFrogStepper, createWaveOperator, pinnedPositions } from "./propagation";
-import { String } from "./string";
-import { createRegularGrid } from "./grid";
-import { addMath } from "./math";
-import { addLinePlot } from "./plotting";
-import { pluck } from "./functions";
+import { String } from "./guitar/string";
+import { createRegularGrid } from "./tools/grid";
+import { addMath } from "./tools/math";
+import { addLinePlot } from "./tools/plotting";
+import { pluck } from "./tools/functions";
 import { OverdriveNode } from "./effect/OverdriveNode"
 import { AudioNodeWrapper } from "./effect/AudioNodeWrapper";
 import { ReverbNode } from "./effect/ReverbNode";
@@ -25,7 +24,7 @@ function plotStandingWave(x, mode: number) {
 }
 
 
-let grid = createRegularGrid(0, 1, 0.01);
+let grid = createRegularGrid(0, 1, 128);
 // let state = createInitialState(grid, x => Math.exp(- 10 * Math.PI * (x-0.5) * (x-0.5)));
 // let state = createInitialState(grid, x => Math.sin(1 * Math.PI * x));
 
@@ -55,12 +54,12 @@ class Guitar {
     this.grid = grid;
     let frequencyMultiplier = 1;
     this.strings = [
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
-      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { dx: grid.dx} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
+      new AudioWorkletNode(audioCtx, "audio-string", { processorOptions: { N: grid.N} }),
     ];
 
     this.strings[0].parameters.get("frequency").value =  82.4;
@@ -255,7 +254,6 @@ function addSlider(labelText: string, value: number, min: number, max: number, u
   container.append(input);
   container.append(label);
   document.body.append(container);
-
 }
 
 
@@ -464,7 +462,7 @@ setInterval(() => {
 
 let holdingChord: string = null;
 
-document.body.addEventListener("keypress", (event) => {
+document.body.addEventListener("keydown", (event) => {
   if (event.key != null && event.key === holdingChord) {
     return;
   }
@@ -519,8 +517,11 @@ document.body.addEventListener("keypress", (event) => {
   }
 
   else if (event.key == "a") {
-    guitar.holdFrets([0, 0, 2, 2, 2, 0]);
+    // always a-minor (for the rising sun!)
+    guitar.holdFrets([0, 0, 2, 2, 1, 0])
     guitar.setChordStrings([1, 2, 3, 4, 5]);
+    // guitar.holdFrets([0, 0, 2, 2, 2, 0]);
+    // guitar.setChordStrings([1, 2, 3, 4, 5]);
     holdingChord = event.key;
   }
   else if (event.key == "A") {
@@ -588,7 +589,9 @@ document.body.addEventListener("keypress", (event) => {
 });
 
 document.body.addEventListener("keyup", event => {
-  if (event.key != null && event.key == holdingChord) {
+console.log(event);
+
+  if (event.key != null && event.key.toLowerCase() == holdingChord?.toLocaleLowerCase()) {
     holdingChord = null;
     guitar.releaseFrets();
   }

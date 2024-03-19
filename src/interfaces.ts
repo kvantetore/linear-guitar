@@ -2,6 +2,7 @@ interface IGrid {
     min: number,
     max: number,
     dx: number,
+    N: number,
     x: number[],
 
     getIndex(x: number): number,
@@ -10,6 +11,7 @@ interface IGrid {
 interface IState {
     y: number[],
     ydiff: number[],
+    t: number,
 }
 
 interface IOperatorResult {

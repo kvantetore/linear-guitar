@@ -1,14 +1,10 @@
-import { createRegularGrid } from "./grid";
+import { createRegularGrid } from "../tools/grid";
 import { String } from "./string";
 
-class AudioString extends AudioWorkletProcessor {
+class StringNode extends AudioWorkletProcessor {
     grid: IGrid;
     string: String;
-    pickupPosition: number;
-
-    strumStart: number;
-    strumEnd: number;
-    subSteps: number = 2;
+    subSteps: number;
 
     static get parameterDescriptors() {
         return [
@@ -60,12 +56,15 @@ class AudioString extends AudioWorkletProcessor {
     constructor(args: any) {
         super()
 
-        var dx = args?.processorOptions?.dx ?? 0.01;
+        var N = args?.processorOptions?.N ?? 128;
         var dt = 1/sampleRate;
-        var frequency = args?.processorOptions?.frequency ?? 82;
 
-        this.grid = createRegularGrid(0, 1, dx);
-        this.string = new String(this.grid, dt / this.subSteps, frequency);
+        var frequency = args?.processorOptions?.frequency ?? 82;
+        var subSteps = args?.processorOptions?.subSteps ?? 2;
+
+        this.grid = createRegularGrid(0, 1, N);
+        this.string = new String(this.grid, dt / subSteps, frequency);
+        this.subSteps = subSteps;
 
         this.port.onmessage = this.onmessage.bind(this);
     }
@@ -88,7 +87,7 @@ class AudioString extends AudioWorkletProcessor {
             }
 
             let pickupIndex = this.grid.getIndex(this.getParam(parameters.pickupPosition, i));
-            buffer[i] = this.string.state.y[pickupIndex] / 6;
+            buffer[i] = this.string.f[pickupIndex] / 6;
         }
 
         // copy to output channels
@@ -113,11 +112,11 @@ class AudioString extends AudioWorkletProcessor {
     onmessage(event) {
         let { data } = event;
 
-        if (data.message === "requestY") {
-            this.port.postMessage({ message: "y", y: this.string.state.y });
+        if (data.message === "requestF") {
+            this.port.postMessage({ message: "f", f: this.string.f });
         }
     }
 }
 
 
-registerProcessor("audio-string", AudioString);
+registerProcessor("string-node", StringNode);

@@ -1,0 +1,1 @@
+Derive linear wave equation from Newtons Law

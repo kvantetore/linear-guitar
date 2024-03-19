@@ -20,18 +20,55 @@ const mathjax_options = {
     containerWidth: 1280
 }
 
+export function addHeader(header: string) {
+    var h1 = document.createElement("h1")
+    h1.innerText = header;
+    document.body.append(h1);
+}
+
+export function addParagraph(text: string) {
+    var p = document.createElement("p")
+    p.innerText = text;
+    p.style.fontSize = "2em";
+    p.style.textAlign = "center";
+    document.body.append(p);
+}
+
+export function addBlockQuote(text: string) {
+    var p = document.createElement("blockquote")
+    p.innerText = text;
+    p.style.fontSize = "2em";
+    p.style.textAlign = "center";
+    document.body.append(p);
+}
+
+export function addImage(url: string) {
+    var img = document.createElement("img");
+    img.src = url;
+    img.style.margin = "auto";
+    img.style.maxHeight = "80vh";
+    document.body.append(img);
+
+    return {
+        update: (url) => img.src = url,
+    }
+}
+
+export function addMathText(text: string) {
+    var elem = document.createElement("p")
+    elem.className = "math-text";
+    elem.innerText = text;
+    document.body.append(elem);
+}
+
 export function addMath(math: string, after: string = null): { update: (string) => void}
 {
     var container = document.createElement("div");
-    container.style.fontSize = "2em";
-    container.style.margin = "2em";
-    container.style.display = "flex";
-    container.style.alignItems = "center"
+    container.className = "math";
     document.body.append(container);
 
     var equation = document.createElement("div");
-    equation.style.flexGrow = "1";
-    equation.style.textAlign = "center";
+    equation.className = "equation";
     container.append(equation);
 
     function update(math: string) {
@@ -44,6 +81,7 @@ export function addMath(math: string, after: string = null): { update: (string) 
 
     if (after) {
         let afterDiv = document.createElement("div");
+        afterDiv.className = "after"
         afterDiv.innerText = after;
         container.append(afterDiv)
     }
@@ -53,45 +91,3 @@ export function addMath(math: string, after: string = null): { update: (string) 
     };
 }
 
-export function addMathSteps(mathSteps: string[], after: string = null) {
-
-    var container = document.createElement("div");
-    container.style.fontSize = "2em";
-    container.style.margin = "2em";
-    container.style.display = "flex";
-    container.style.alignItems = "center"
-    document.body.append(container);
-
-    var equation = document.createElement("div");
-    equation.style.flexGrow = "1";
-    equation.style.textAlign = "center";
-    container.append(equation);
-
-    let current = 0;
-    update();
-    
-    function update() {
-        let math = mathSteps[current];
-
-        const node = mathjax_document.convert(math, mathjax_options)
-        equation.innerHTML = "";
-        adaptor.append(equation, node);
-    }
-
-    container.addEventListener("click", () => {
-        if (current < mathSteps.length - 1) {
-            current++;
-            update();
-        }
-    })
-
-
-    if (after) {
-        let afterDiv = document.createElement("div");
-        afterDiv.innerText = after;
-        container.append(afterDiv)
-    }
-
-    return container;
-
-}
