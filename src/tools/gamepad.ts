@@ -83,6 +83,12 @@ function addGamepadGuitarBindings(gamepad: Gamepad,  guitar: Guitar, overdrive: 
     {
         if (isButtonPressed(8)) {
             overdrive.wetMix = 1 - overdrive.wetMix;
+            addPopup(`overdrive ${overdrive.wetMix}`);
+        }
+
+        if (isButtonPressed(9)) {
+            reverb.levelGain = 1 - reverb.levelGain;
+            addPopup(`reverb ${reverb.wetGain}`);
         }
 
         if (isButtonPressed(16)) {

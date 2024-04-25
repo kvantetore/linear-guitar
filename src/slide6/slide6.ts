@@ -1,36 +1,30 @@
-import { standingWave } from "../tools/functions";
-import { calculateOverlap, createPluckedString, createSawtoothWave, createSquareWave, createStandingWave, diff2, signedSquare } from "../tools/propagation";
+import { createPluckedString, } from "../tools/propagation";
 import { createRegularGrid } from "../tools/grid";
 import { addHeader, addMathText } from "../tools/math";
 import { addBarPlot, addLinePlot } from "../tools/plotting";
+import { String } from "../guitar/string";
 
 export function slide6() {
     addHeader("From String to Waveform")
+    var grid = createRegularGrid(0, 1, 64);
+    var dt = 1/256;
+   
+    let string = new String(grid, dt, 1);
+    string.setInitialValue(createPluckedString(grid, 0.3));
+    string.dampingCoefficient = 0.1;
 
-    var grid = createRegularGrid(0, 1, 32);
-    var f = createPluckedString(grid, 0.4);
-    var v = grid.x.map(x => 0);
-
-    var dt = 1/128;
-
-    var line = addLinePlot(grid.x, f);
+    var line = addLinePlot(grid.x, string.f);
     line.addClickListener((event) => {
-        f = createPluckedString(grid, event.x);
-        v.fill(0);
-        line.update(grid.x, f);
+        string.setInitialValue(createPluckedString(grid, event.x));
+        line.update(grid.x, string.f);
     });
 
     let markerGridIndex = grid.getIndex(0.3);
     let marker = line.addMarker(0.3, 0, "red");
     line.addVertical(0.3, "gray")
 
-    let c = 1;
-    let damping = 0.1;
-
-    let range = [...Array(grid.N).keys()];
-
     let waveform = Array(1024);
-    waveform.fill(f[markerGridIndex]);
+    waveform.fill(0);
     let t = createRegularGrid(0, 1, 1024);
     let waveformPlot = addLinePlot(t.x, waveform);
 
@@ -46,23 +40,14 @@ export function slide6() {
             return;
         }
 
-        let op = diff2(grid, f)
-        let force = range.map(i => op[i] * c - v[i] * damping)
+        string.step();
+        line.update(grid.x, string.f);
 
-        let vnext = range.map(i => v[i] + dt * force[i]);
-        let fnext = range.map(i => f[i] + dt * vnext[i]);
-
-        v = vnext;
-        f = fnext;
-        line.update(grid.x, f);
-
-        var sample = f[markerGridIndex];
-
+        var sample = string.f[markerGridIndex];
         waveform.splice(0, 0, sample);
         waveform.pop();
         waveformPlot.update(t.x, waveform);
         
         marker.update(0.3, sample, "red");
-
     }, 1000 * dt);
 }

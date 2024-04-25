@@ -7,7 +7,4 @@ import { slide6 } from "./slide6/slide6";
 import { slide7 } from "./slide7/slide7";
 import { slide8 } from "./slide8/slide8";
 
-// slide6();
- slide8();
-// import "./guitar";
-
+slide5();

@@ -15,24 +15,25 @@ export async function slide8() {
     });
     await audioCtx.audioWorklet.addModule("js/guitar/string-node.js");
 
+    addHeader("A Linear Guitar");
+
     let guitar = new Guitar(audioCtx, grid);
     guitar.animate();
 
     var guitarNode = new AudioNodeWrapper(audioCtx, guitar.volumeNode);
-    let overdrive = new OverdriveNode(audioCtx);
-    let reverb = new ReverbNode(audioCtx);
+    var overdrive = new OverdriveNode(audioCtx);
+    var reverb = new ReverbNode(audioCtx);
 
     guitarNode
-        .connect(reverb)
         .connect(overdrive)
+        .connect(reverb)
         .connect(audioCtx.destination);
 
 
-    addButton("Resume", () => audioCtx.resume());
-
+    addGamepadBindings(guitar, overdrive, reverb);
     addGuitarKeyboardInput(guitar);
-    addGamepadBindings(guitar, overdrive, reverb)
-    addGamepadInfo();
 
+    addButton("Resume", () => audioCtx.resume());
     addSong1(guitar);
+
 }

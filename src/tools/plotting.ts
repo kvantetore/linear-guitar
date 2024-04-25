@@ -1,6 +1,6 @@
 
 
-export function addLinePlot(x: number[], y: number[], options: { height?: number, color?:string} = {}) 
+export function addLinePlot(x: number[], y: number[]|Float32Array, options: { height?: number, color?:string} = {}) 
 {
     var container = document.createElement("div");
     container.className = "line-plot";
@@ -50,7 +50,7 @@ export function addLinePlot(x: number[], y: number[], options: { height?: number
         svg: svg,
         line: graphLine,
 
-        update: function(x: number[], y: number[]) {
+        update: function(x: number[], y: number[]|Float32Array) {
             graphLine.setAttribute("d", getLineDef(x,y));
         },
 
@@ -183,6 +183,8 @@ export function addBarPlot(values: number[], labels: string[], options: {height?
             r.setAttribute("height", `${Math.abs(v)*height}`)
         });
     }
+
+    update(values);
 
     return {
         update: update 

@@ -34,19 +34,9 @@ export class Guitar {
             new AudioWorkletNode(audioCtx, "string-node", { processorOptions: { N: grid.N, subSteps: subSteps} }),
         ];
 
-        this.strings.forEach((string, i) => {
-            string.parameters.get("frequency").value = this.baseFrequencies[i];
-        });
-
-        this.strings[0].parameters.get("frequency").value =  82.4;
-        this.strings[1].parameters.get("frequency").value = 110.0;
-        this.strings[2].parameters.get("frequency").value = 146.8;
-        this.strings[3].parameters.get("frequency").value = 196.0;
-        this.strings[4].parameters.get("frequency").value = 246.9;
-        this.strings[5].parameters.get("frequency").value = 329.6;
-
-        for (let s of this.strings) {
-            s.parameters.get("pickupPosition").value = 0.2;
+        for (let i = 0; i < this.strings.length; i++) {
+            this.strings[i].parameters.get("frequency").value = this.baseFrequencies[i];
+            this.strings[i].parameters.get("pickupPosition").value = 0.2;
         }
     
 

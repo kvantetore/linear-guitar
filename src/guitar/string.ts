@@ -49,6 +49,13 @@ export class String {
         this.force = new Float32Array(grid.N);
     }
 
+    setInitialValue(f: number[]) {
+        for (let i = 0; i < this.grid.N; i++) {
+            this.f[i] = f[i];
+            this.v[i] = 0;
+        }
+    }
+
     public step() {
         // align active fret with a grid point for simplicity 
         var fretPosition = this.fretPosition ?? 1;

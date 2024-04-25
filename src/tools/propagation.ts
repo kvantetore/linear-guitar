@@ -30,7 +30,7 @@ export function createStandingWave(grid: IGrid, n: number) {
     return grid.x.map(x => Math.sin(Math.PI * n * x));
 }
 
-export function createSquareWave(grid: IGrid, startX: number = 0.1, endX: 0.3) : number[] { 
+export function createSquareWave(grid: IGrid, startX: number = 0.1, endX = 0.3) : number[] { 
     return grid.x.map(x => x < startX || x >= endX ? 0 : 1);
 }
 
