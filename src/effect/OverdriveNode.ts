@@ -23,6 +23,11 @@ export class OverdriveNode extends CompositeAudioNodeWrapper
     this.node = audioCtx.createGain();
     this.outputNode = this.lowpassFilter;
 
+    //                       /--------- dry gain --------------\
+    // input --- band pass --                                   --- low pass
+    //                       \--- wet gain --- wave shaper --- /
+
+
     this.node.connect(this.bandPassFilter);
     this.bandPassFilter.connect(this.wet);
     this.bandPassFilter.connect(this.dry);
